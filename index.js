@@ -2,6 +2,7 @@ const express      = require('express');
 const cors         = require('cors');
 const bodyParser   = require('body-parser');
 const cookieParser = require('cookie-parser');
+const passport     = require('passport');
 
 /////////////
 //
@@ -17,6 +18,14 @@ if(process.env.NODE_ENV !== 'production'){
 
 //Connect to the DB...
 require('./utils/dbconnect');
+
+//Load what we need for login/signup
+require('./strategies/JwtStrategy');
+require('./strategies/LocalStrategy');
+require('./authenticate');
+
+//Get our routes
+const userRouter = require('./routes/userRoutes');
 
 const app = express();
 app.use(bodyParser.json());
@@ -39,11 +48,17 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+//Initialize passport
+app.use(passport.initialize());
+
 /////////////
 //
 // ROUTES
 //
 /////////////
+
+//Set up our app to utilize the userRouter routes
+app.use('/api/auth', userRouter);
 
 app.get('/', (req, res) =>{
     res.send({status: 'success'});

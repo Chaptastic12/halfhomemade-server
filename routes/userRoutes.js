@@ -21,7 +21,7 @@ router.post('/register', (req, res, next) =>{
                     res.send(err);
                 } else {
                     user.firstName = req.body.firstName;
-                    user.lastName = req.body.lastName || '';
+                    user.lastName = req.body.lastName;
 
                     const token = getToken({ _id: user._id });
                     const refreshToken = getRefreshToken({ _id: user._id });
@@ -40,3 +40,5 @@ router.post('/register', (req, res, next) =>{
         )
     }
 });
+
+module.exports = router;

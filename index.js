@@ -4,6 +4,9 @@ const bodyParser   = require('body-parser');
 const cookieParser = require('cookie-parser');
 const passport     = require('passport');
 
+//Get our routes
+const userRoutes = require('./routes/userRoutes');
+
 /////////////
 //
 // SETUP
@@ -23,9 +26,6 @@ require('./utils/dbconnect');
 require('./strategies/JwtStrategy');
 require('./strategies/LocalStrategy');
 require('./authenticate');
-
-//Get our routes
-const userRouter = require('./routes/userRoutes');
 
 const app = express();
 app.use(bodyParser.json());
@@ -58,7 +58,7 @@ app.use(passport.initialize());
 /////////////
 
 //Set up our app to utilize the userRouter routes
-app.use('/api/auth', userRouter);
+app.use('/api/auth', userRoutes);
 
 app.get('/', (req, res) =>{
     res.send({status: 'success'});

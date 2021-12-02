@@ -4,7 +4,7 @@ const User      = require('../models/user');
 const passport  = require('passport');
 const jwt       = require('jsonwebtoken');
 
-const { getToken, COOKIE_OPTIONS, getRefreshToken } = require('../authenticate');
+const { getToken, COOKIE_OPTIONS, getRefreshToken, verifyUser } = require('../authenticate');
 
 router.post('/register', (req, res, next) =>{
     //Verify that there is an email address. Could potentially check for other things here
@@ -87,7 +87,6 @@ router.post('/refreshtoken', (req, res, next) => {
                             const token = getToken({ _id: userId });
                             //If we already have a refreshtoken, replace it
                             const newRefreshToken = getRefreshToken({ _id: userId});
-                            console.log(newRefreshToken);
                             user.refreshToken[tokenIndex] = { refreshToken: newRefreshToken};
 
                             user.save(( err, user ) => {
@@ -116,5 +115,36 @@ router.post('/refreshtoken', (req, res, next) => {
         res.send('Unathorized');
     }
 });
+
+//Log out our user; remove their refresh tokens. Auth token will be removed on the front end
+router.post('/logout', verifyUser, (req, res, next) => {
+    const { signedCookies = {} } = req;
+    const { refreshToken } = signedCookies;
+
+    User.findById(req.user._id).then(
+        user => {
+            const tokenIndex = user.refreshToken.findIndex( item => item.refreshToken === refreshToken );
+        
+            if(tokenIndex !== -1 ){
+                user.refreshToken.id(user.refreshToken[tokenIndex]._id).remove();
+            } 
+
+            user.save(( err, user ) => {
+                if(err){
+                    res.statusCode = 500;
+                    req.send(err);
+                } else {
+                    res.clearCookie('refreshToken', COOKIE_OPTIONS);
+                    res.send({ success: true });
+                }
+            })
+        },
+        err => next(err)
+    );
+})
+
+router.get('/userPage', verifyUser, (req, res, next) => { 
+    res.send(req.user);
+})
 
 module.exports = router;

@@ -10,10 +10,10 @@ opts.secretOrKey = process.env.JWT_SECRET;
 //Used by authenticated requests to deserialize the user, such as
 // fetching user details from the JWT
 passport.use(
-    new JwtStrategy(opts, (jwt_payload, done) =>{
+    new JwtStrategy(opts, (jwt_payload, done) => {
         //Check against DB only if necessary.
         //This can be avoided if we don't need to make that DB call in every request
-        User.findOne({ _id: jwt_payload._id }, (err, user) =>{
+        User.findOne({ _id: jwt_payload._id }, (err, user) => {
             if(err){ return done(err, false); }
             if(user){ 
                 return done(null, user); 

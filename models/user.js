@@ -35,6 +35,10 @@ const User = new Schema({
     },
     refreshToken: {
         type: [Session]
+    },
+    isAdmin: {
+        type: Boolean,
+        default: false
     }
 });
 

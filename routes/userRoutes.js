@@ -24,6 +24,7 @@ router.post('/register', (req, res, next) =>{
                 } else {
                     user.firstName = req.body.firstName;
                     user.lastName = req.body.lastName;
+                    //user.isAdmin = req.body.isAdmin;
 
                     const token = getToken({ _id: user._id });
                     const refreshToken = getRefreshToken({ _id: user._id });
@@ -45,23 +46,25 @@ router.post('/register', (req, res, next) =>{
 
 //Our route for handling logging in. Must first pass the local auth middleware provided by passport
 router.post('/login', passport.authenticate('local'), (req, res, next) =>{
-    const token = getToken({_id: req.user._id});
-    const refreshToken = getRefreshToken({_id: req.user._id});
+    const token = getToken({ _id: req.user._id });
+    const refreshToken = getRefreshToken({ _id: req.user._id });
 
-    User.findById(req.user.id).then(
+    User.findById(req.user._id).then(
         user =>{
-            user.refreshToken.push({refreshToken});
-            user.save((err, user) =>{
+            user.refreshToken.push({ refreshToken });
+            user.save((err, user) => {
                 if(err){
                     res.statusCode = 500;
                     res.send(err);
                 } else {
+                    const isAdmin = user.isAdmin;
                     res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS);
-                    res.send({success: true, token});
+                    res.send({success: true, token, isAdmin});
                 }
             });
-        }
-    )
+        },
+        err => next(err)
+    );
 });
 
 //Handle our refreshtoken. This will be used to keep the user logged in if necessary
@@ -79,7 +82,7 @@ router.post('/refreshtoken', (req, res, next) => {
                     if(user){
                         //Get our refreshtoken in the db
                         const tokenIndex = user.refreshToken.findIndex( item => item.refreshToken === refreshToken);
-
+                        console.log('did we find a user', user);
                         if(tokenIndex === -1){
                             res.statusCode = 401;
                             res.send('Unathorized');
@@ -121,13 +124,22 @@ router.post('/logout', verifyUser, (req, res, next) => {
     const { signedCookies = {} } = req;
     const { refreshToken } = signedCookies;
 
+    console.log('refresh token?', refreshToken)
     User.findById(req.user._id).then(
         user => {
             const tokenIndex = user.refreshToken.findIndex( item => item.refreshToken === refreshToken );
-        
+            
+            console.log('token index', tokenIndex);
             if(tokenIndex !== -1 ){
                 user.refreshToken.id(user.refreshToken[tokenIndex]._id).remove();
             } 
+
+            //CURRENTLY THE REFRESHTOKEN IS NOT WORKING, HOWEVER WE ARE STILL CREATING ONE
+            //WILL NEED TO INVESTIGATE..FOR NOW, USERS WILL JUST NOT LOGOUT UNLESS THEY CHOOSE TOO
+            //SO, REMOVE ALL TOKENS MANUALLY HERE
+            user.refreshToken = [];
+
+            console.log(user);
 
             user.save(( err, user ) => {
                 if(err){

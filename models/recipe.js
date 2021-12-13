@@ -2,32 +2,20 @@ const mongoose = require('mongoose');
 const Schema   = mongoose.Schema;
 
 const Recipe = new Schema({
-    recipeIngredients: {
-        type: [{
-            type: String,
-            default: ''
-        }]
+    RecipeIngredients: {
+        type: Array,
+        default: []
     },
     recipeSteps: {
-        type: [{
-            type: String,
-            default: ''
-        }]
+        type: Array,
+        default: []
     },
-    recipeTitle: {
-        type: String,
-        default: ''
+    recipeTitle: String,
+    recipeDesc: String,
+    tags:{
+        type: Array,
+        default: []
     },
-    RecipeDesc: {
-        type: String,
-        default: ''
-    },
-    tags: {
-        type: [{
-            type: String,
-            default: ''
-        }]
-    }
 });
 
 module.exports = mongoose.model('Recipe', Recipe);

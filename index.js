@@ -6,6 +6,7 @@ const passport     = require('passport');
 
 //Get our routes
 const userRoutes = require('./routes/userRoutes');
+const recipeRoutes = require('./routes/recipeRoutes');
 
 /////////////
 //
@@ -59,6 +60,7 @@ app.use(passport.initialize());
 
 //Set up our app to utilize the userRouter routes
 app.use('/api/auth', userRoutes);
+app.use('/api/recipes', recipeRoutes);
 
 app.get('/', (req, res) =>{
     res.send({status: 'success'});

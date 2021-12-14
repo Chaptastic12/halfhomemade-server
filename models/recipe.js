@@ -13,10 +13,24 @@ const Recipe = new Schema({
     recipeTitle: String,
     recipeDesc: String,
     recipeBook: String,
-    tags:{
+    recipeRating: { //Holds are ratings that we have received
+        type: Number,
+        default: 0
+    },
+    tags:{ //Holds all of our tags, which will be in an array
         type: Array,
         default: []
     },
+    likes: [ //Will hold all the likes that this recipe has
+		{
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "User"
+		}
+	],
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
 });
 
 module.exports = mongoose.model('Recipe', Recipe);

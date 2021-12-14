@@ -39,7 +39,13 @@ const User = new Schema({
     isAdmin: {
         type: Boolean,
         default: false
-    }
+    },
+    likes: [
+		{
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "Recipe"
+		}
+	]
 });
 
 //Remove refreshToken(s) from response so its not exposed when we send the dat

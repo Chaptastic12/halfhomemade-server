@@ -28,6 +28,7 @@ router.post('/add', verifyUser, ( req, res, next ) =>{
             newRecipe.recipeSteps = req.body.recipeSteps;
             newRecipe.tags = req.body.modifiedTags;
             newRecipe.recipeBook = req.body.bookSelection;
+            newRecipe.recipeRating = req.body.recipeRating
             newRecipe.save();
             console.log('Successful Recipe Save');
             return ({ success: true });
@@ -43,7 +44,7 @@ router.get('/showAllRecipes', (req, res, next) => {
             res.status(500);
             return;
         } else {
-            res.send({recipes: allRecipes});
+            res.send(allRecipes);
         }
     })
 })

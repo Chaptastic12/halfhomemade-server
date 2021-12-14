@@ -12,6 +12,7 @@ const Recipe = new Schema({
     },
     recipeTitle: String,
     recipeDesc: String,
+    recipeBook: String,
     tags:{
         type: Array,
         default: []

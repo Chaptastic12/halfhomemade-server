@@ -27,6 +27,7 @@ router.post('/add', ( req, res, next ) =>{
         newRecipe.recipeTitle = req.body.recipeTitle;
         newRecipe.recipeSteps = req.body.recipeSteps;
         newRecipe.tags = req.body.modifiedTags;
+        newRecipe.recipeBook = req.body.bookSelection;
         newRecipe.save();
         console.log('Successful Recipe Save');
     })

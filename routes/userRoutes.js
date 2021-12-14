@@ -124,7 +124,6 @@ router.post('/logout', verifyUser, (req, res, next) => {
     const { signedCookies = {} } = req;
     const { refreshToken } = signedCookies;
 
-    console.log('refresh token?', refreshToken)
     User.findById(req.user._id).then(
         user => {
             const tokenIndex = user.refreshToken.findIndex( item => item.refreshToken === refreshToken );
@@ -138,8 +137,6 @@ router.post('/logout', verifyUser, (req, res, next) => {
             //WILL NEED TO INVESTIGATE..FOR NOW, USERS WILL JUST NOT LOGOUT UNLESS THEY CHOOSE TOO
             //SO, REMOVE ALL TOKENS MANUALLY HERE
             user.refreshToken = [];
-
-            console.log(user);
 
             user.save(( err, user ) => {
                 if(err){

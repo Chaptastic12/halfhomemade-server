@@ -1,8 +1,10 @@
-const express      = require('express');
-const cors         = require('cors');
-const bodyParser   = require('body-parser');
-const cookieParser = require('cookie-parser');
-const passport     = require('passport');
+const express       = require('express');
+const cors          = require('cors');
+const bodyParser    = require('body-parser');
+const cookieParser  = require('cookie-parser');
+const passport      = require('passport');
+const LocalStrategy = require('passport-local');
+const User          = require('./models/user');
 
 //Get our routes
 const userRoutes = require('./routes/userRoutes');
@@ -50,7 +52,22 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 //Initialize passport
+app.use(require('express-session')({
+    secret: process.env.PASSPORT_SECRET,
+    resave: false,
+    saveUninitialized: false
+}))
 app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+//add currentUser to all our templates - add the flash messages to all pages as well
+app.use((req, res, next) =>{
+	res.locals.currentUser = req.user;
+	next();
+})
 
 /////////////
 //

@@ -47,6 +47,7 @@ router.post('/add', verifyUser, fileUpload.single('recipeImage'), ( req, res, ne
                         newRecipe.recipeSteps = req.body.recipeSteps;
                         newRecipe.recipeTags = req.body.recipeTags;
                         newRecipe.recipeBook = recipeBook;
+                        newRecipe.recipeImage = req.file.path;
                         newRecipe.recipeRating = 0;
                         newRecipe.save();
                         console.log('Successful Recipe Save');
@@ -77,5 +78,15 @@ router.get('/showAllRecipes', (req, res, next) => {
         }
     })
 })
+
+// router.get('/deleteAllRecipes', (req, res, next) => {
+//     Recipe.deleteMany({}, (err, success) => {
+//         if(err){
+//             res.send(err)
+//         }else {
+//             res.send({success: 'All deleted'})
+//         }
+//     });
+// })
 
 module.exports = router;

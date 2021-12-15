@@ -5,6 +5,7 @@ const cookieParser  = require('cookie-parser');
 const passport      = require('passport');
 const LocalStrategy = require('passport-local');
 const User          = require('./models/user');
+const path          = require('path');
 
 //Get our routes
 const userRoutes   = require('./routes/userRoutes');
@@ -79,6 +80,8 @@ app.use((req, res, next) =>{
 app.use('/api/auth', userRoutes);
 app.use('/api/recipes', recipeRoutes);
 app.use('/api/books', bookRoutes);
+//Allow the app to access our images in the specified folder
+app.use('/uploads/images', express.static(path.join('uploads', 'images')));
 
 app.get('/', (req, res) =>{
     res.send({status: 'success'});

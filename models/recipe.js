@@ -21,6 +21,7 @@ const Recipe = new Schema({
         type: Array,
         default: []
     },
+    recipeImage: String,
     likes: [ //Will hold all the likes that this recipe has
 		{
 			type: mongoose.Schema.Types.ObjectId,

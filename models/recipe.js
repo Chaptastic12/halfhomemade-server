@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema   = mongoose.Schema;
 
 const Recipe = new Schema({
-    RecipeIngredients: {
+    recipeIngredients: {
         type: Array,
         default: []
     },
@@ -17,7 +17,7 @@ const Recipe = new Schema({
         type: Number,
         default: 0
     },
-    tags:{ //Holds all of our tags, which will be in an array
+    recipeTags:{ //Holds all of our tags, which will be in an array
         type: Array,
         default: []
     },

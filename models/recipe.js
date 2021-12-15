@@ -27,6 +27,10 @@ const Recipe = new Schema({
 			ref: "User"
 		}
 	],
+    book: {
+        type: mongoose.Schema.Types.ObjectId,
+			ref: "Book"
+    },
     createdAt: {
         type: Date,
         default: Date.now

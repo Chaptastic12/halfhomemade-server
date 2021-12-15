@@ -7,8 +7,9 @@ const LocalStrategy = require('passport-local');
 const User          = require('./models/user');
 
 //Get our routes
-const userRoutes = require('./routes/userRoutes');
+const userRoutes   = require('./routes/userRoutes');
 const recipeRoutes = require('./routes/recipeRoutes');
+const bookRoutes   = require('./routes/bookRoutes');
 
 /////////////
 //
@@ -27,7 +28,6 @@ require('./utils/dbconnect');
 
 //Load what we need for login/signup
 require('./strategies/JwtStrategy');
-require('./strategies/LocalStrategy');
 require('./authenticate');
 
 const app = express();
@@ -78,6 +78,7 @@ app.use((req, res, next) =>{
 //Set up our app to utilize the userRouter routes
 app.use('/api/auth', userRoutes);
 app.use('/api/recipes', recipeRoutes);
+app.use('/api/books', bookRoutes);
 
 app.get('/', (req, res) =>{
     res.send({status: 'success'});

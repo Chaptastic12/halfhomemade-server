@@ -1,14 +1,23 @@
 const express   = require('express');
 const router    = express.Router();
 const Book      = require('../models/book');
+const fileUpload = require('../middleware/file-upload');
+const filesystem = require('fs')
 
 const { verifyUser } = require('../authenticate');
 
+const deleteFileImage = (req) =>{
+    if(req.file){
+        filesystem.unlink(req.file.path);
+    }
+}
+
 //Add a book.
-router.post('/add', verifyUser, ( req, res, next ) =>{
+router.post('/add', verifyUser, fileUpload.single('bookImage'), ( req, res, next ) =>{
     res.send({received: true});
     if(req.body.bookImg === null || req.body.bookTitle === null ){
             res.statusCode = 500;
+            deleteFileImage();
             return ({
                 name: 'EmptyFieldError',
                 message: "All Fields must be filled out"
@@ -19,6 +28,8 @@ router.post('/add', verifyUser, ( req, res, next ) =>{
         Book.create(req.body, (err, newBook) =>{
             if(err){
                 res.status(500);
+                deleteFileImage();
+
                 return;
             }
             newBook.bookTitle = req.body.bookTitle;
@@ -27,6 +38,7 @@ router.post('/add', verifyUser, ( req, res, next ) =>{
             return ({ success: true });
         })
     } 
+    deleteFileImage();
     return ({ success: false });
 })
 

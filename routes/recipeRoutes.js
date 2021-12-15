@@ -2,15 +2,24 @@ const express   = require('express');
 const router    = express.Router();
 const Recipe    = require('../models/recipe');
 const Book      = require('../models/book');
+const fileUpload = require('../middleware/file-upload');
+const filesystem = require('fs')
 
 const { verifyUser } = require('../authenticate');
 
+const deleteFileImage = (req) =>{
+    if(req.file){
+        filesystem.unlink(req.file.path);
+    }
+}
+
 //Add a recipe.
-router.post('/add', verifyUser, ( req, res, next ) =>{
+router.post('/add', verifyUser, fileUpload.single('recipeImage'), ( req, res, next ) =>{
     console.log(req.body)
     if( (req.body.numberOfIngredients === null || req.body.numberofSteps === null || req.body.recipeTitle === null || req.body.recipeDesc === null ) || 
         (req.body.recipeIngredients.length === 0 || req.body.recipeSteps.length === 0 || req.body.recipeTags.length === 0) ){
             res.statusCode = 500;
+            deleteFileImage();
             return ({
                 name: 'EmptyFieldError',
                 message: "All Fields must be filled out"
@@ -23,6 +32,7 @@ router.post('/add', verifyUser, ( req, res, next ) =>{
             if(err){
                 res.status(500);
                 res.send({ error: 'Could not find recipe book' });
+                deleteFileImage();
                 return;
             } else {
                 //Create our recipe and save to database
@@ -37,7 +47,7 @@ router.post('/add', verifyUser, ( req, res, next ) =>{
                         newRecipe.recipeSteps = req.body.recipeSteps;
                         newRecipe.recipeTags = req.body.recipeTags;
                         newRecipe.recipeBook = recipeBook;
-                        newRecipe.recipeRating = req.body.recipeRating;
+                        newRecipe.recipeRating = 0;
                         newRecipe.save();
                         console.log('Successful Recipe Save');
                         
@@ -52,6 +62,7 @@ router.post('/add', verifyUser, ( req, res, next ) =>{
         })
     } else {
         res.send({ success: false });
+        deleteFileImage();
         return;
     }
 });

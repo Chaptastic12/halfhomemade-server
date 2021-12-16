@@ -1,11 +1,11 @@
-const express   = require('express');
-const router    = express.Router();
-const Recipe    = require('../models/recipe');
-const Book      = require('../models/book');
-const fileUpload = require('../middleware/file-upload');
-const filesystem = require('fs')
-
-const { verifyUser } = require('../authenticate');
+const express            = require('express');
+const router             = express.Router();
+const Recipe             = require('../models/recipe');
+const Book               = require('../models/book');
+const fileUpload         = require('../middleware/file-upload');
+const verifyUserIsAdmin  = require('../middleware/auth');
+const filesystem         = require('fs')
+const { verifyUser }     = require('../authenticate');
 
 const deleteFileImage = (req) =>{
     if(req.file){
@@ -14,7 +14,7 @@ const deleteFileImage = (req) =>{
 }
 
 //Add a recipe.
-router.post('/add', verifyUser, fileUpload.single('recipeImage'), ( req, res, next ) =>{
+router.post('/add', verifyUser, verifyUserIsAdmin, fileUpload.single('recipeImage'), ( req, res, next ) =>{
     if( (req.body.numberOfIngredients === null || req.body.numberofSteps === null || req.body.recipeTitle === null || req.body.recipeDesc === null ) || 
         (req.body.recipeIngredients.length === 0 || req.body.recipeSteps.length === 0 || req.body.recipeTags.length === 0) ){
             res.statusCode = 500;
@@ -90,14 +90,15 @@ router.get('/getOneRecipe/:id', (req, res, next) => {
     })
 })
 
-// router.get('/deleteAllRecipes', (req, res, next) => {
-//     Recipe.deleteMany({}, (err, success) => {
-//         if(err){
-//             res.send(err)
-//         }else {
-//             res.send({success: 'All deleted'})
-//         }
-//     });
-// })
+router.get('/deleteAllRecipes', verifyUserIsAdmin, (req, res, next) => {
+    verifyUserIsAdmin
+    Recipe.deleteMany({}, (err, success) => {
+        if(err){
+            res.send(err)
+        }else {
+            res.send({success: 'All deleted'})
+        }
+    });
+})
 
 module.exports = router;

@@ -15,15 +15,15 @@ const deleteFileImage = (req) =>{
 
 //Add a recipe.
 router.post('/add', verifyUser, fileUpload.single('recipeImage'), ( req, res, next ) =>{
-    console.log(req.body)
     if( (req.body.numberOfIngredients === null || req.body.numberofSteps === null || req.body.recipeTitle === null || req.body.recipeDesc === null ) || 
         (req.body.recipeIngredients.length === 0 || req.body.recipeSteps.length === 0 || req.body.recipeTags.length === 0) ){
             res.statusCode = 500;
             deleteFileImage();
-            return ({
+            res.send({
                 name: 'EmptyFieldError',
                 message: "All Fields must be filled out"
             });
+            return; 
     }
 
     if(req.user.isAdmin){
@@ -41,10 +41,10 @@ router.post('/add', verifyUser, fileUpload.single('recipeImage'), ( req, res, ne
                         res.status(500);
                         return ({ error: 'Error creating recipe'});
                     } else {
-                        newRecipe.recipeIngredients = req.body.recipeIngredients;
+                        newRecipe.recipeIngredients = JSON.parse(req.body.recipeIngredients);
                         newRecipe.recipeDesc = req.body.recipeDesc;
                         newRecipe.recipeTitle = req.body.recipeTitle;
-                        newRecipe.recipeSteps = req.body.recipeSteps;
+                        newRecipe.recipeSteps = JSON.parse(req.body.recipeSteps);
                         newRecipe.recipeTags = req.body.recipeTags;
                         newRecipe.recipeBook = recipeBook;
                         newRecipe.recipeImage = req.file.path;
@@ -75,6 +75,17 @@ router.get('/showAllRecipes', (req, res, next) => {
             return;
         } else {
             res.send(allRecipes);
+        }
+    })
+})
+
+router.get('/getOneRecipe/:id', (req, res, next) => { 
+    Recipe.findById(req.params.id).exec((err, recipe) =>{
+        if(err){
+            res.status(500);
+            return;
+        } else {
+            res.send(recipe);
         }
     })
 })

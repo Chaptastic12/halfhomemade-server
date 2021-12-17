@@ -55,7 +55,7 @@ router.post('/add', verifyUser, verifyUserIsAdmin, fileUpload.single('recipeImag
                         recipeBook.recipes.push(newRecipe._id);
                         recipeBook.save();
                         console.log('Successfully added recipe ID to book');
-                        res.send({ success: true });
+                        res.send({ success: true, id: newRecipe._id });
                         return;
                     }
                 });

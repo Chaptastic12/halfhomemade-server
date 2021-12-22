@@ -10,6 +10,11 @@ const { verifyUser }     = require('../authenticate');
 const deleteFileImage = (req) =>{
     if(req.file){
         filesystem.unlink(req.file.path);
+    } else {
+        filesystem.unlink(req.recipeImage, (err =>{
+            if(err) console.log(err);
+            else console.log('deleted file');
+        }));
     }
 }
 
@@ -86,6 +91,23 @@ router.get('/getOneRecipe/:id', (req, res, next) => {
             return;
         } else {
             res.send(recipe);
+        }
+    })
+})
+
+router.get('/UpdateOneRecipe/:id', verifyUserIsAdmin, (req, res, next) => {
+
+});
+
+router.delete('/deleteOneRecipe/:id', verifyUser, verifyUserIsAdmin, (req, res, next) => {
+    Recipe.findByIdAndRemove(req.params.id, (err, deleteRecipe) => {
+        if(err){
+            res.send(err);
+        } else {
+            //If we found our recipe, we also need to delete the image associated
+            Recipe.remove();
+            deleteFileImage(deleteRecipe);
+            res.send({succes: 'Deleted' + req.params.id});
         }
     })
 })

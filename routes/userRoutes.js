@@ -128,7 +128,6 @@ router.post('/logout', verifyUser, (req, res, next) => {
         user => {
             const tokenIndex = user.refreshToken.findIndex( item => item.refreshToken === refreshToken );
             
-            console.log('token index', tokenIndex);
             if(tokenIndex !== -1 ){
                 user.refreshToken.id(user.refreshToken[tokenIndex]._id).remove();
             } 
@@ -144,6 +143,7 @@ router.post('/logout', verifyUser, (req, res, next) => {
                     req.send(err);
                 } else {
                     res.clearCookie('refreshToken', COOKIE_OPTIONS);
+                    req.logout();
                     res.send({ success: true });
                 }
             })

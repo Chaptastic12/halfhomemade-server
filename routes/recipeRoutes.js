@@ -112,8 +112,7 @@ router.delete('/deleteOneRecipe/:id', verifyUser, verifyUserIsAdmin, (req, res, 
     })
 })
 
-router.get('/deleteAllRecipes', verifyUserIsAdmin, (req, res, next) => {
-    verifyUserIsAdmin
+router.get('/deleteAllRecipes', verifyUser, verifyUserIsAdmin, (req, res, next) => {
     Recipe.deleteMany({}, (err, success) => {
         if(err){
             res.send(err)

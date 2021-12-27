@@ -12,7 +12,10 @@ const Recipe = new Schema({
     },
     recipeTitle: String,
     recipeDesc: String,
-    recipeBook: String,
+    recipeBook: {
+        type: Object,
+        default: []
+    },
     recipeRating: { //Holds are ratings that we have received
         type: Number,
         default: 0

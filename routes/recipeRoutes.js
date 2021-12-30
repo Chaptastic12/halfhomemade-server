@@ -95,8 +95,8 @@ router.get('/getOneRecipe/:id', (req, res, next) => {
     })
 })
 
-router.get('/UpdateOneRecipe/:id', verifyUserIsAdmin, (req, res, next) => {
-
+router.put('/UpdateOneRecipe/:id', verifyUser, verifyUserIsAdmin, (req, res, next) => {
+    console.log(req.params.id)
 });
 
 router.delete('/deleteOneRecipe/:id', verifyUser, verifyUserIsAdmin, (req, res, next) => {

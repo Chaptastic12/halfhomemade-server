@@ -95,8 +95,35 @@ router.get('/getOneRecipe/:id', (req, res, next) => {
     })
 })
 
-router.put('/UpdateOneRecipe/:id', verifyUser, verifyUserIsAdmin, (req, res, next) => {
-    console.log(req.params.id)
+router.post('/UpdateOneRecipe/:id', verifyUser, verifyUserIsAdmin, fileUpload.single('recipeImage'), (req, res, next) => {
+    console.log('updating...')
+    Book.findById(req.body.bookSelection, (err, recipeBook) =>{
+        if(err){
+            res.send({error: 'Unable to find book'})
+        } else {
+            Recipe.findById(req.params.id, (err, updatedRecipe) =>{
+                if(err){
+                    res.send({error: 'Unable to update recipe'});
+                } else {
+                    updatedRecipe.recipeIngredients = JSON.parse(req.body.recipeIngredients);
+                    updatedRecipe.recipeDesc = req.body.recipeDesc;
+                    updatedRecipe.recipeTitle = req.body.recipeTitle;
+                    updatedRecipe.recipeSteps = JSON.parse(req.body.recipeSteps);
+                    updatedRecipe.recipeTags = req.body.recipeTags;
+                    updatedRecipe.recipeBook = recipeBook;
+                    updatedRecipe.recipeRating = req.body.recipeRating;
+                    if(req.body.updateImage === 'true'){
+                        //Delete the old image, and replace it with the new one
+                        deleteFileImage(updatedRecipe);
+                        updatedRecipe.recipeImage = req.file.path
+                    } 
+                    updatedRecipe.save();
+                    //deleteFileImage(req.body);
+                    res.send({success: 'Update successful', id: req.params.id});
+                }
+            });
+        }
+    })
 });
 
 router.delete('/deleteOneRecipe/:id', verifyUser, verifyUserIsAdmin, (req, res, next) => {

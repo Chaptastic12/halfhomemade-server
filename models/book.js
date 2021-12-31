@@ -10,7 +10,9 @@ const Book = new Schema({
     createdAt: {
         type: Date,
         default: Date.now
-    }
+    },
+    id: String,
+    bookImage: String
 });
 
 module.exports = mongoose.model('Book', Book);

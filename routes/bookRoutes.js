@@ -29,10 +29,11 @@ router.post('/add', verifyUser, fileUpload.single('bookImage'), ( req, res, next
             if(err){
                 res.status(500);
                 deleteFileImage();
-
                 return;
             }
             newBook.bookTitle = req.body.bookTitle;
+            newBook.id = newBook._id.toString();
+            newBook.bookImage = req.file.path;
             newBook.save();
             console.log('Successful Book Save');
             return ({ success: true });

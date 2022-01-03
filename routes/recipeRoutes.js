@@ -2,6 +2,7 @@ const express            = require('express');
 const router             = express.Router();
 const Recipe             = require('../models/recipe');
 const Book               = require('../models/book');
+const Review             = require('../models/review');
 const fileUpload         = require('../middleware/file-upload');
 const verifyUserIsAdmin  = require('../middleware/auth');
 const filesystem         = require('fs')
@@ -85,7 +86,7 @@ router.get('/showAllRecipes', (req, res, next) => {
 })
 
 router.get('/getOneRecipe/:id', (req, res, next) => { 
-    Recipe.findById(req.params.id).exec((err, recipe) =>{
+    Recipe.findById(req.params.id).populate('reviews').exec((err, recipe) =>{
         if(err){
             res.status(500);
             return;
@@ -131,10 +132,17 @@ router.delete('/deleteOneRecipe/:id', verifyUser, verifyUserIsAdmin, (req, res, 
         if(err){
             res.send(err);
         } else {
-            //If we found our recipe, we also need to delete the image associated
-            Recipe.remove();
-            deleteFileImage(deleteRecipe);
-            res.send({succes: 'Deleted' + req.params.id});
+            //Remove all of the reviews
+            Review.remove({_id: {$in: deleteRecipe.reviews } }, (err) => {
+                if(err){
+                    res.send({ error: 'Error removing Reviews from recipe', err })
+                } else {
+                    Recipe.remove();
+                    //If we found our recipe, we also need to delete the image associated
+                    deleteFileImage(deleteRecipe);
+                    res.send({succes: 'Deleted' + req.params.id});
+                }
+            });
         }
     })
 })
@@ -148,5 +156,41 @@ router.get('/deleteAllRecipes', verifyUser, verifyUserIsAdmin, (req, res, next) 
         }
     });
 })
+
+const calculateReviewAverage = reviews => {
+    if(reviews.length === 0){
+        return 0;
+    }
+    let sum =0;
+    reviews.forEach((review) => {
+        sum+= review.rating;
+    });
+    return sum / reviews.length;
+}
+
+router.post('/reviewARecipe/:id', verifyUser, fileUpload.single('recipeImage'), ( req, res, next) =>{
+    Recipe.findById(req.params.id).populate('reviews').exec((err, foundRecipe) => {
+        if(err){
+            res.send({error: 'Error finding recipe', err})
+        } else {
+            Review.create(req.body, (err, newReview) =>{
+                if(err){
+                    res.send({error: 'Error creating review', err})
+                } else {
+                    newReview.author.id = req.user._id
+                    newReview.author.username = req.user.email;
+                    newReview.recipe = foundRecipe._id;
+                    newReview.save();
+
+                    foundRecipe.reviews.push(newReview);
+                    foundRecipe.recipeRating = calculateReviewAverage(foundRecipe.reviews);
+                    foundRecipe.save();
+                    res.send({succes: 'Successfully submitted review'});
+                }
+            })
+        }
+    });
+});
+
 
 module.exports = router;

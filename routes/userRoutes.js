@@ -58,8 +58,9 @@ router.post('/login', passport.authenticate('local'), (req, res, next) =>{
                     res.send(err);
                 } else {
                     const isAdmin = user.isAdmin;
+                    const id = user._id.toString();
                     res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS);
-                    res.send({success: true, token, isAdmin});
+                    res.send({success: true, token, isAdmin, id});
                 }
             });
         },

@@ -193,20 +193,23 @@ router.post('/reviewARecipe/:id', verifyUser, fileUpload.single('recipeImage'), 
 });
 
 router.delete('/deleteAReview/:id/:reviewId', verifyUser, fileUpload.single('recipeImage'), (req, res, next) => {
-    Review.findByIdAndDelete(req.params.reviewId, err => {
+    Review.findById(req.params.reviewId, (err, foundReview) => {
         if(err){
             res.send({error: 'Error finding review'}, err);
         } else {
-            Recipe.findByIdAndUpdate(req.params.id, {$pull: { reviews: req.params.reviewId}}, {safe: true, upsert: true }, (err, foundRecipe) =>{
-            // Recipe.findById(req.params.id, { $pull: { reviews: req.params.reviewId } }).populate('reviews').exec((err, foundRecipe) =>{
-                if(err){
-                    res.send({error: 'Error finding recipe with review', err});
-                } else {
-                    foundRecipe.rating = calculateReviewAverage(foundRecipe.reviews);
-                    foundRecipe.save();
-                    res.send({success: 'Review deleted successfully'});
-                }
-            });
+            if(foundReview.author.id.toString() === req.user.id || req.user.isAdmin === true){
+                Recipe.findByIdAndUpdate(req.params.id, {$pull: { reviews: req.params.reviewId}}, {safe: true, upsert: true }, (err, foundRecipe) =>{
+                    if(err){
+                        res.send({error: 'Error finding recipe with review', err});
+                    } else {
+                        foundRecipe.rating = calculateReviewAverage(foundRecipe.reviews);
+                        foundRecipe.save();
+                        res.send({success: 'Review deleted successfully'});
+                    }
+                });
+            } else {
+                res.send({error: 'You do not own the rights to this review to delete it'})
+            }
         }
     });
 });

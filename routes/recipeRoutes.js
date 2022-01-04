@@ -192,5 +192,24 @@ router.post('/reviewARecipe/:id', verifyUser, fileUpload.single('recipeImage'), 
     });
 });
 
+router.delete('/deleteAReview/:id/:reviewId', verifyUser, fileUpload.single('recipeImage'), (req, res, next) => {
+    Review.findByIdAndDelete(req.params.reviewId, err => {
+        if(err){
+            res.send({error: 'Error finding review'}, err);
+        } else {
+            Recipe.findByIdAndUpdate(req.params.id, {$pull: { reviews: req.params.reviewId}}, {safe: true, upsert: true }, (err, foundRecipe) =>{
+            // Recipe.findById(req.params.id, { $pull: { reviews: req.params.reviewId } }).populate('reviews').exec((err, foundRecipe) =>{
+                if(err){
+                    res.send({error: 'Error finding recipe with review', err});
+                } else {
+                    foundRecipe.rating = calculateReviewAverage(foundRecipe.reviews);
+                    foundRecipe.save();
+                    res.send({success: 'Review deleted successfully'});
+                }
+            });
+        }
+    });
+});
+
 
 module.exports = router;

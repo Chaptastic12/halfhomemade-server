@@ -4,13 +4,18 @@ const Recipe             = require('../models/recipe');
 const Book               = require('../models/book');
 const Review             = require('../models/review');
 const fileUpload         = require('../middleware/file-upload');
+const fileResize         = require('../middleware/resize-image');
 const verifyUserIsAdmin  = require('../middleware/auth');
 const filesystem         = require('fs')
 const { verifyUser }     = require('../authenticate');
 
 const deleteFileImage = (req) =>{
     if(req.file){
-        filesystem.unlink(req.file.path);
+        console.log(req.file.path)
+        filesystem.unlink(req.file.path, (err =>{
+            if(err) console.log(err);
+            else console.log('deleted file');
+        }));
     } else {
         filesystem.unlink(req.recipeImage, (err =>{
             if(err) console.log(err);
@@ -31,6 +36,9 @@ router.post('/add', verifyUser, verifyUserIsAdmin, fileUpload.single('recipeImag
             });
             return; 
     }
+
+    //Resize the file we saved with multer
+    fileResize(req.file);
 
     if(req.user.isAdmin){
         //Find the book that this recipe is being added to
@@ -53,7 +61,7 @@ router.post('/add', verifyUser, verifyUserIsAdmin, fileUpload.single('recipeImag
                         newRecipe.recipeSteps = JSON.parse(req.body.recipeSteps);
                         newRecipe.recipeTags = req.body.recipeTags;
                         newRecipe.recipeBook = recipeBook;
-                        newRecipe.recipeImage = req.file.path;
+                        newRecipe.recipeImage = 'uploads/images/webp' + req.file.filename;
                         newRecipe.recipeRating = 0;
                         newRecipe.save();
                         console.log('Successful Recipe Save');
@@ -62,6 +70,8 @@ router.post('/add', verifyUser, verifyUserIsAdmin, fileUpload.single('recipeImag
                         recipeBook.save();
                         console.log('Successfully added recipe ID to book');
                         res.send({ success: true, id: newRecipe._id });
+                        //Delete the multer file
+                        deleteFileImage(req);
                         return;
                     }
                 });
@@ -97,7 +107,6 @@ router.get('/getOneRecipe/:id', (req, res, next) => {
 })
 
 router.post('/UpdateOneRecipe/:id', verifyUser, verifyUserIsAdmin, fileUpload.single('recipeImage'), (req, res, next) => {
-    console.log('updating...')
     Book.findById(req.body.bookSelection, (err, recipeBook) =>{
         if(err){
             res.send({error: 'Unable to find book'})
@@ -116,7 +125,9 @@ router.post('/UpdateOneRecipe/:id', verifyUser, verifyUserIsAdmin, fileUpload.si
                     if(req.body.updateImage === 'true'){
                         //Delete the old image, and replace it with the new one
                         deleteFileImage(updatedRecipe);
-                        updatedRecipe.recipeImage = req.file.path
+                        //Resize the file we saved with multer
+                        fileResize(req.file);
+                        updatedRecipe.recipeImage = 'uploads/images/webp' + req.file.filename;
                     } 
                     updatedRecipe.save();
                     //deleteFileImage(req.body);
@@ -194,7 +205,7 @@ router.post('/reviewARecipe/:id', verifyUser, fileUpload.single('recipeImage'), 
 
 router.delete('/deleteAReview/:id/:reviewId', verifyUser, fileUpload.single('recipeImage'), (req, res, next) => {
     Review.findById(req.params.reviewId, (err, foundReview) => {
-        if(err){
+        if(err){npm 
             res.send({error: 'Error finding review'}, err);
         } else {
             if(foundReview.author.id.toString() === req.user.id || req.user.isAdmin === true){

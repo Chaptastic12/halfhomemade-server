@@ -55,10 +55,10 @@ router.post('/add', verifyUser, verifyUserIsAdmin, fileUpload.single('recipeImag
                         res.status(500);
                         return ({ error: 'Error creating recipe'});
                     } else {
-                        newRecipe.recipeIngredients = JSON.parse(req.body.recipeIngredients);
+                        newRecipe.recipeIngredients = req.body.recipeIngredients;
                         newRecipe.recipeDesc = req.body.recipeDesc;
                         newRecipe.recipeTitle = req.body.recipeTitle;
-                        newRecipe.recipeSteps = JSON.parse(req.body.recipeSteps);
+                        newRecipe.recipeSteps =req.body.recipeSteps;
                         newRecipe.recipeTags = req.body.recipeTags;
                         newRecipe.recipeBook = recipeBook;
                         newRecipe.recipeImage = 'uploads/images/webp' + req.file.filename;
@@ -115,10 +115,10 @@ router.post('/UpdateOneRecipe/:id', verifyUser, verifyUserIsAdmin, fileUpload.si
                 if(err){
                     res.send({error: 'Unable to update recipe'});
                 } else {
-                    updatedRecipe.recipeIngredients = JSON.parse(req.body.recipeIngredients);
+                    updatedRecipe.recipeIngredients = req.body.recipeIngredients;
                     updatedRecipe.recipeDesc = req.body.recipeDesc;
                     updatedRecipe.recipeTitle = req.body.recipeTitle;
-                    updatedRecipe.recipeSteps = JSON.parse(req.body.recipeSteps);
+                    updatedRecipe.recipeSteps = req.body.recipeSteps;
                     updatedRecipe.recipeTags = req.body.recipeTags;
                     updatedRecipe.recipeBook = recipeBook;
                     updatedRecipe.recipeRating = req.body.recipeRating;

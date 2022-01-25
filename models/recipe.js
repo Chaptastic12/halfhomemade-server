@@ -2,14 +2,17 @@ const mongoose = require('mongoose');
 const Schema   = mongoose.Schema;
 
 const Recipe = new Schema({
-    recipeIngredients: {
-        type: Array,
-        default: []
-    },
-    recipeSteps: {
-        type: Array,
-        default: []
-    },
+    // recipeIngredients: {
+    //     type: Array,
+    //     default: []
+    // },
+    // recipeSteps: {
+    //     type: Array,
+    //     default: []
+    // },
+    //Updated when changing from the old upload to the new
+    recipeIngredients: String,
+    recipeSteps: String,
     recipeTitle: String,
     recipeDesc: String,
     recipeBook: {

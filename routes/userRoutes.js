@@ -17,13 +17,13 @@ router.post('/register', (req, res, next) =>{
         });
     } else{
         User.register(
-            new User({ username: req.body.email, email: req.body.email }), req.body.password, (err, user) => {
+            new User({ username: req.body.username, email: req.body.email }), req.body.password, (err, user) => {
                 if(err){
                     res.statusCode = 500;
                     res.send(err);
                 } else {
-                    user.firstName = req.body.firstName;
-                    user.lastName = req.body.lastName;
+                    //user.firstName = req.body.firstName;
+                    //user.lastName = req.body.lastName;
                     //user.isAdmin = req.body.isAdmin;
 
                     const token = getToken({ _id: user._id });
@@ -36,6 +36,7 @@ router.post('/register', (req, res, next) =>{
                         } else {
                             res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS);
                             res.send({ success: true, token });
+                            console.log('successful register')
                         }
                     })
                 }

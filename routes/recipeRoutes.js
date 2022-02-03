@@ -205,7 +205,7 @@ router.post('/reviewARecipe/:id', verifyUser, fileUpload.single('recipeImage'), 
 
 router.delete('/deleteAReview/:id/:reviewId', verifyUser, fileUpload.single('recipeImage'), (req, res, next) => {
     Review.findById(req.params.reviewId, (err, foundReview) => {
-        if(err){npm 
+        if(err){
             res.send({error: 'Error finding review'}, err);
         } else {
             if(foundReview.author.id.toString() === req.user.id || req.user.isAdmin === true){
@@ -213,17 +213,42 @@ router.delete('/deleteAReview/:id/:reviewId', verifyUser, fileUpload.single('rec
                     if(err){
                         res.send({error: 'Error finding recipe with review', err});
                     } else {
-                        foundRecipe.rating = calculateReviewAverage(foundRecipe.reviews);
+                        foundRecipe.recipeRating = calculateReviewAverage(foundRecipe.reviews);
                         foundRecipe.save();
                         res.send({success: 'Review deleted successfully'});
                     }
                 });
             } else {
-                res.send({error: 'You do not own the rights to this review to delete it'})
             }
         }
     });
 });
+
+router.post('/editARecipe/:id/:reviewId', verifyUser, fileUpload.single('recipeImage'), (req, res, next) => {
+    Review.findById(req.params.reviewId, (err, foundReview) => {
+        if(err){
+            res.send({error: 'Error finding review', err});
+        } else {
+            if(foundReview.author.id.toString() === req.user.id || req.user.isAdmin === true){
+                foundReview.rating = req.body.rating;
+                foundReview.text = req.body.text;
+
+                foundReview.save();
+                Recipe.findById(req.params.id).populate('reviews').exec((err, foundRecipe) => {
+                    if(err){
+                        res.send({error: 'Error finding Recipe', err});
+                    }else{
+                        foundRecipe.recipeRating = calculateReviewAverage(foundRecipe.reviews);
+                        foundRecipe.save();
+                        res.send({ success: 'Review has been updated' });
+                    }
+                })
+            }else{
+                res.send({error: 'You do not own the rights to this review to delete it'})
+            }
+        }
+    })
+})
 
 
 module.exports = router;

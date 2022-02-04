@@ -189,7 +189,7 @@ router.post('/reviewARecipe/:id', verifyUser, fileUpload.single('recipeImage'), 
                     res.send({error: 'Error creating review', err})
                 } else {
                     newReview.author.id = req.user._id
-                    newReview.author.username = req.user.email;
+                    newReview.author.username = req.user.username;
                     newReview.recipe = foundRecipe._id;
                     newReview.save();
 

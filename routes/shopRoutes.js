@@ -60,7 +60,7 @@ router.post('/submitProductReview/:id', verifyUser, (req, res, next) =>{
     })
 });
 
-//Id needed is shopify ID
+//Get reviews for a product; Id needed is shopify ID
 router.get('/getReviewsForProduct/:id', (req, res, next)=>{
     Product.findOne({'shopifyId': req.params.id}).populate('reviews').exec((err, foundProduct) =>{
         if(err){
@@ -71,6 +71,18 @@ router.get('/getReviewsForProduct/:id', (req, res, next)=>{
         }
     })
 });
+
+//Get reviews for all products
+router.get('/getAllReviewsForProducts', (req, res, next) =>{
+    Product.find({}).populate('reviews').exec((err, foundProducts)=>{
+        if(err){
+            res.status(500);
+            res.send({error: 'Error getting products and reviews'}, err);
+        } else {
+            res.send(foundProducts);
+        }
+    })
+})
 
 router.delete('/deleteAProductReview/:id/:reviewId', verifyUser, (req, res, next) => {
     Review.findById(req.params.reviewId, (err, foundReview) => {

@@ -176,10 +176,14 @@ const calculateReviewAverage = reviews => {
     reviews.forEach((review) => {
         sum+= review.rating;
     });
-    return sum / reviews.length;
+    if(sum >= 0){
+        return sum / reviews.length;
+    }else{
+        return 0;
+    }
 }
 
-router.post('/reviewARecipe/:id', verifyUser, fileUpload.single('recipeImage'), ( req, res, next) =>{
+router.post('/reviewARecipe/:id', verifyUser, ( req, res, next) =>{
     Recipe.findById(req.params.id).populate('reviews').exec((err, foundRecipe) => {
         if(err){
             res.send({error: 'Error finding recipe', err})
@@ -203,7 +207,7 @@ router.post('/reviewARecipe/:id', verifyUser, fileUpload.single('recipeImage'), 
     });
 });
 
-router.delete('/deleteAReview/:id/:reviewId', verifyUser, fileUpload.single('recipeImage'), (req, res, next) => {
+router.delete('/deleteAReview/:id/:reviewId', verifyUser, (req, res, next) => {
     Review.findById(req.params.reviewId, (err, foundReview) => {
         if(err){
             res.send({error: 'Error finding review'}, err);
@@ -218,13 +222,13 @@ router.delete('/deleteAReview/:id/:reviewId', verifyUser, fileUpload.single('rec
                         res.send({success: 'Review deleted successfully'});
                     }
                 });
-            } else {
+                foundReview.remove();
             }
         }
     });
 });
 
-router.post('/editARecipe/:id/:reviewId', verifyUser, fileUpload.single('recipeImage'), (req, res, next) => {
+router.post('/editARecipe/:id/:reviewId', verifyUser, (req, res, next) => {
     Review.findById(req.params.reviewId, (err, foundReview) => {
         if(err){
             res.send({error: 'Error finding review', err});

@@ -11,7 +11,7 @@ const path          = require('path');
 const userRoutes   = require('./routes/userRoutes');
 const recipeRoutes = require('./routes/recipeRoutes');
 const bookRoutes   = require('./routes/bookRoutes');
-
+const shopRoutes   = require('./routes/shopRoutes')
 /////////////
 //
 // SETUP
@@ -80,6 +80,7 @@ app.use((req, res, next) =>{
 app.use('/api/auth', userRoutes);
 app.use('/api/recipes', recipeRoutes);
 app.use('/api/books', bookRoutes);
+app.use('/api/shop', shopRoutes);
 //Allow the app to access our images in the specified folder
 app.use('/uploads/images', express.static(path.join('uploads', 'images')));
 

@@ -9,7 +9,7 @@ let reviewSchema = new mongoose.Schema({
         // Making the star rating required
         required: "Please provide a rating (1-5 stars).",
         // Defining min and max values
-        min: 1,
+        min: 0,
         max: 5,
         // Adding validation to see if the entry is an integer
         validate: {
@@ -34,6 +34,11 @@ let reviewSchema = new mongoose.Schema({
     recipe: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Recipe"
+    },
+    // Shopify product associated with the review
+    shopifyProduct: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product'
     }
 }, {
     // if timestamps are set to true, mongoose assigns createdAt and updatedAt fields to test schema, the type assigned is Date.

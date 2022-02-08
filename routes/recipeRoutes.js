@@ -107,14 +107,20 @@ router.get('/getOneRecipe/:id', (req, res, next) => {
 })
 
 router.post('/UpdateOneRecipe/:id', verifyUser, verifyUserIsAdmin, fileUpload.single('recipeImage'), (req, res, next) => {
+    //Find the book the new recipe will go into
     Book.findById(req.body.bookSelection, (err, recipeBook) =>{
         if(err){
             res.send({error: 'Unable to find book'})
         } else {
+            //Get the recipe we are looking to update
             Recipe.findById(req.params.id, (err, updatedRecipe) =>{
                 if(err){
                     res.send({error: 'Unable to update recipe'});
                 } else {
+                    let sameBook = true;
+                    if(updatedRecipe.recipeBook._id !== req.body.bookSelection){ sameBook = false; }else{sameBook = true}
+                    let oldBook = updatedRecipe.recipeBook._id
+
                     updatedRecipe.recipeIngredients = req.body.recipeIngredients;
                     updatedRecipe.recipeDesc = req.body.recipeDesc;
                     updatedRecipe.recipeTitle = req.body.recipeTitle;
@@ -130,8 +136,22 @@ router.post('/UpdateOneRecipe/:id', verifyUser, verifyUserIsAdmin, fileUpload.si
                         updatedRecipe.recipeImage = 'uploads/images/webp' + req.file.filename;
                     } 
                     updatedRecipe.save();
-                    //deleteFileImage(req.body);
-                    res.send({success: 'Update successful', id: req.params.id});
+                    //Add the recipe to our new book
+                    recipeBook.recipes.push(updatedRecipe._id);
+                    recipeBook.save();
+
+                    //Remove the recipe from the old book if the book is changing
+                    if(!sameBook){
+                        Book.findByIdAndUpdate(oldBook, {$pull: { recipes: req.params.id}}, {safe: true, upsert: true }, (err, bookToAdjust) =>{
+                            if(err){
+                                res.send({error: 'Unable to remove from old book'});
+                            } else {
+                                res.send({success: 'Update successful and book updated', id: req.params.id});
+                            }
+                        })
+                    }else{
+                        res.send({success: 'Update successful; No book update', id: req.params.id});
+                    }
                 }
             });
         }

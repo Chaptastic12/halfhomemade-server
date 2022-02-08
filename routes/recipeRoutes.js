@@ -118,8 +118,8 @@ router.post('/UpdateOneRecipe/:id', verifyUser, verifyUserIsAdmin, fileUpload.si
                     res.send({error: 'Unable to update recipe'});
                 } else {
                     let sameBook = true;
-                    if(updatedRecipe.recipeBook._id !== req.body.bookSelection){ sameBook = false; }else{sameBook = true}
-                    let oldBook = updatedRecipe.recipeBook._id
+                    if(updatedRecipe.recipeBook._id !== req.body.bookSelection){ sameBook = false; } else { sameBook = true }
+                    let oldBook = updatedRecipe.recipeBook._id;
 
                     updatedRecipe.recipeIngredients = req.body.recipeIngredients;
                     updatedRecipe.recipeDesc = req.body.recipeDesc;

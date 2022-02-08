@@ -1,9 +1,10 @@
 const express   = require('express');
 const router    = express.Router();
 const Book      = require('../models/book');
+const Recipe    = require('../models/recipe');
 const fileUpload = require('../middleware/file-upload');
 const filesystem = require('fs')
-
+const verifyUserIsAdmin  = require('../middleware/auth');
 const { verifyUser } = require('../authenticate');
 
 const deleteFileImage = (req) =>{
@@ -13,7 +14,7 @@ const deleteFileImage = (req) =>{
 }
 
 //Add a book.
-router.post('/add', verifyUser, fileUpload.single('bookImage'), ( req, res, next ) =>{
+router.post('/add', verifyUser, verifyUserIsAdmin, fileUpload.single('bookImage'), ( req, res, next ) =>{
     if(req.body.bookImg === null || req.body.bookTitle === null ){
         res.statusCode = 500;
         deleteFileImage(req);
@@ -63,6 +64,30 @@ router.get('getOneBook/:id', (req, res, next) =>{
             res.send(book);
         }
     })
-})
+});
+
+router.delete('/deleteOneBook/:id', verifyUser, verifyUserIsAdmin, (req, res, next) => {
+    Book.findByIdAndDelete(req.params.id, (err, deleteBook) => {
+        if(err){
+            res.send(err);
+        } else {
+            //Get our review book
+            Book.findById('620150200bec367cd2bdcb39', (err, reviewBook) =>{
+                for(let i=0; i < deleteBook.recipes.length; i++){
+                    Recipe.findById(deleteBook.recipes[i]._id, (err, foundRecipe) =>{
+                        if(err){
+                            res.send({error: 'Error updating recipes books'});
+                        } else{
+                            foundRecipe.recipeBook = reviewBook;
+                            foundRecipe.save();
+                        }
+                    });
+                }
+                reviewBook.recipes.push(deleteBook.recipes);
+                reviewBook.save();
+            })
+        }
+    })
+});
 
 module.exports = router;

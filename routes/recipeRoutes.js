@@ -272,7 +272,41 @@ router.post('/editARecipe/:id/:reviewId', verifyUser, (req, res, next) => {
             }
         }
     })
-})
+});
+
+router.post('/addARecipeToUserLikes/:id', verifyUser, (req, res, next) =>{
+    Recipe.findById(req.params.id, (err, foundRecipe) =>{
+		if(err){
+			res.status(500)
+			res.send({error: 'Error finding recipe to like'})
+		} else{
+			User.findById(req.user._id, (err, likeUser) =>{
+				//Check if the currently logged in user has already liked this destinations
+				let foundUser = foundRecipe.likes.some(like => like.equals(req.user._id));
+
+				//Some will return TRUE if one does exist. Which means we need to unlike the destination
+				if(foundUser){
+					//Remove the destination from the Destiantions like list
+					foundRecipe.likes.pull(req.user._id);
+					//Remove destination from the Users like list
+					likeUser.likes.pull(req.params.id);
+				} else {
+					//if some() returns FALSE then this is a new like
+					foundRecipe.likes.push(req.user._id);
+					likeUser.likes.push(req.params.id);
+				}
+				//Save the user and the destination.
+				likeUser.save();
+				foundRecipe.save(err =>{
+					if(err){
+                        res.send(500)
+						res.send({error: 'Error saving recipe'});
+					}
+                });
+			});
+		}
+	});
+});
 
 
 module.exports = router;

@@ -154,8 +154,22 @@ router.post('/logout', verifyUser, (req, res, next) => {
     );
 })
 
-router.get('/userPage', verifyUser, (req, res, next) => { 
-    res.send(req.user);
+router.get('/getUserInfoById/', verifyUser, (req, res, next) => { 
+    User.findById(req.user._id).populate('likes').exec((err, foundUser)=>{
+        if(err){
+            res.status(500);
+            res.send({error: 'Error locating user'})
+        } else {
+            //Determine what we are going to send back
+            let foundUserDATA = {
+                id: foundUser._id,
+                username: foundUser.username,
+                email: foundUser.email,
+                likes: foundUser.likes
+            }
+            res.send(foundUserDATA);
+        }
+    });
 })
 
 module.exports = router;

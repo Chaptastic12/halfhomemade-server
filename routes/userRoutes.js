@@ -142,7 +142,7 @@ router.post('/logout', verifyUser, (req, res, next) => {
             user.save(( err, user ) => {
                 if(err){
                     res.statusCode = 500;
-                    req.send(err);
+                    res.send(err);
                 } else {
                     res.clearCookie('refreshToken', COOKIE_OPTIONS);
                     req.logout();
@@ -162,7 +162,6 @@ router.get('/getUserInfoById/', verifyUser, (req, res, next) => {
         } else {
             //Determine what we are going to send back
             let foundUserDATA = {
-                id: foundUser._id,
                 username: foundUser.username,
                 email: foundUser.email,
                 likes: foundUser.likes

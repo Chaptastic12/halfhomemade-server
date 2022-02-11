@@ -3,6 +3,7 @@ const router             = express.Router();
 const Recipe             = require('../models/recipe');
 const Book               = require('../models/book');
 const Review             = require('../models/review');
+const User               = require('../models/user');
 const fileUpload         = require('../middleware/file-upload');
 const fileResize         = require('../middleware/resize-image');
 const verifyUserIsAdmin  = require('../middleware/auth');
@@ -302,6 +303,7 @@ router.post('/addARecipeToUserLikes/:id', verifyUser, (req, res, next) =>{
                         res.send(500)
 						res.send({error: 'Error saving recipe'});
 					}
+                    res.send({success: 'Successfully updated like/dislike'})
                 });
 			});
 		}

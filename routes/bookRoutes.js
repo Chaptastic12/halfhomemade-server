@@ -71,7 +71,7 @@ router.delete('/deleteOneBook/:id', verifyUser, verifyUserIsAdmin, (req, res, ne
         if(err){
             res.send(err);
         } else {
-            //Get our review book
+            //Get our miscellaneous book and save the recipes in the deleted book here
             Book.findById('620150200bec367cd2bdcb39', (err, reviewBook) =>{
                 for(let i=0; i < deleteBook.recipes.length; i++){
                     Recipe.findById(deleteBook.recipes[i]._id, (err, foundRecipe) =>{

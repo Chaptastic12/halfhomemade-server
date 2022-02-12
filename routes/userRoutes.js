@@ -214,6 +214,7 @@ router.post('/updateUserInfo', verifyUser, (req, res, next)=>{
                     res.send({error: 'Error relogging in'})
                 }
             });
+            res.send({success: 'User settings updated'})
         }
     })
 })

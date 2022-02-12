@@ -171,4 +171,51 @@ router.get('/getUserInfoById/', verifyUser, (req, res, next) => {
     });
 })
 
+router.post('/updateUserInfo', verifyUser, (req, res, next)=>{
+    User.findById(req.user._id, (err, foundUser)=>{
+        if(err){
+            res.status(500);
+            res.send({error: 'Error locating user'})
+        } else {
+            //See if we sent a password to be adjusted or not;
+            //We only need to check password, as if confirm is null but these arent itll fail the match check
+            if( req.body.password !== '' && req.body.password !== null && req.body.password !== undefined ){
+                //Double check that our passwords match for redundancy
+                if(req.body.password === req.body.confirmPassword){
+                    foundUser.setPassword(req.body.password, (err) =>{
+                        if(err){
+                            res.status(500);
+                            res.send({error: 'Error saving password'});
+                        }else{
+                            foundUser.save();
+                        }
+                    })
+                } else {
+                    res.status(500)
+                    res.send({error: "Passwords do not match"});
+                }
+            }
+
+            //Check if we are updating our email our not
+            if(req.body.email !== '' && req.body.email !== null && req.body.email !== undefined ){
+                foundUser.email = req.body.email;
+                foundUser.save()
+            }
+
+             //Check if we are updating our username our not
+             if(req.body.username !== '' && req.body.username !== null && req.body.username !== undefined ){
+                foundUser.username = req.body.username;
+                foundUser.save();
+            }
+     
+            req.logIn(foundUser, (err) =>{
+                if(err){
+                    res.status(500);
+                    res.send({error: 'Error relogging in'})
+                }
+            });
+        }
+    })
+})
+
 module.exports = router;

@@ -86,7 +86,7 @@ router.post('/add', verifyUser, verifyUserIsAdmin, fileUpload.single('recipeImag
 });
 
 router.get('/showAllRecipes', (req, res, next) => { 
-    Recipe.find({}).exec((err, allRecipes) =>{
+    Recipe.find({}).populate('reviews').exec((err, allRecipes) =>{
         if(err){
             res.status(500);
             return;
